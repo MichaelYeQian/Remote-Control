@@ -138,94 +138,215 @@
 //          Right joystick Y(GPIO33) -> STR (normal)
 // Output range: 1..255
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// #include <Arduino.h>
+// #include <Wire.h>
+// #include <Adafruit_GFX.h>
+// #include <Adafruit_SSD1306.h>
+
+// // ==== OLED (128x64) ====
+// #define SCREEN_WIDTH 128
+// #define SCREEN_HEIGHT 64
+// const uint8_t PIN_SDA = 21, PIN_SCL = 22;   // I2C pins on ESP32
+// const uint8_t OLED_ADDR = 0x3C;             // 0x3C or 0x3D
+// Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
+
+// // ==== Joystick pins ====
+// // Left joystick X -> THR; Right joystick Y -> STR
+// const uint8_t JOY_LEFT_X  = 36; // THR (ADC1_CH0, input-only)
+// const uint8_t JOY_RIGHT_Y = 33; // STR (ADC1_CH5)
+
+// // ==== Mapping parameters ====
+// static const int DEADZONE = 15;     // deadzone near center
+// static const int OUT_MIN  = 1;      // final output range 1..255
+// static const int OUT_MAX  = 255;
+// static const int OUT_MID  = (OUT_MIN + OUT_MAX) / 2; // 128
+
+// // Now both are normal (not inverted)
+// bool INVERT_THR = false;  // GPIO36 normal
+// bool INVERT_STR = false;  // GPIO33 normal
+
+// // Map ADC(0..4095) -> -512..512 -> deadzone -> 1..255
+// int mapAxisToParam(uint8_t pin, bool invert) {
+//   int raw = analogRead(pin);                 // 0..4095
+//   int v   = map(raw, 0, 4095, -512, 512);    // scale to -512..512
+//   if (invert) v = -v;                        // invert if needed
+//   if (abs(v) < DEADZONE) v = 0;              // apply deadzone
+//   int p = map(v, -512, 512, OUT_MIN, OUT_MAX);
+//   return constrain(p, OUT_MIN, OUT_MAX);
+// }
+
+// // Draw a horizontal bar centered at mid (128)
+// void drawHBar(int16_t y, int value1to255) {
+//   int len = map(value1to255, OUT_MIN, OUT_MAX, -60, 60);
+//   int16_t x0 = 4, cx = x0 + 60; // center x
+//   display.drawFastHLine(x0, y, 120, SSD1306_WHITE);
+//   display.drawFastVLine(cx, y-3, 7, SSD1306_WHITE);
+//   if (len > 0)      display.fillRect(cx+1,   y-2,  len,   5, SSD1306_WHITE);
+//   else if (len < 0) display.fillRect(cx+len, y-2, -len,   5, SSD1306_WHITE);
+// }
+
+// void setup() {
+//   Serial.begin(115200);
+
+//   // I2C + OLED
+//   Wire.begin(PIN_SDA, PIN_SCL);
+//   if (!display.begin(SSD1306_SWITCHCAPVCC, OLED_ADDR)) {
+//     Serial.println("[OLED] Not found. Check wiring/address.");
+//   }
+//   display.clearDisplay();
+//   display.setTextSize(1);
+//   display.setTextColor(SSD1306_WHITE);
+//   display.setCursor(0,0);
+//   display.println("ESP32 Joystick Test (1..255)");
+//   display.display();
+
+//   // ADC configuration
+//   analogReadResolution(12); // 0..4095
+//   analogSetPinAttenuation(JOY_LEFT_X,  ADC_11db);
+//   analogSetPinAttenuation(JOY_RIGHT_Y, ADC_11db);
+// }
+
+// void loop() {
+//   // Read mapped values (normal direction)
+//   int thr = mapAxisToParam(JOY_LEFT_X,  INVERT_THR);
+//   int str = mapAxisToParam(JOY_RIGHT_Y, INVERT_STR);
+
+//   // Serial debug
+//   static uint32_t t0 = 0;
+//   if (millis() - t0 > 150) {
+//     t0 = millis();
+//     Serial.printf("THR=%3d  STR=%3d\n", thr, str);
+//   }
+
+//   // OLED output
+//   display.clearDisplay();
+//   display.setCursor(0, 0);  display.print("THR: "); display.println(thr);
+//   drawHBar(14, thr);
+//   display.setCursor(0, 30); display.print("STR: "); display.println(str);
+//   drawHBar(44, str);
+//   display.setCursor(0, 56); display.print("Range 1-255  Mid=128");
+//   display.display();
+
+//   delay(30);
+// }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// #include <Bounce2.h>
+
+// #define BUTTON1 25
+// #define BUTTON2 26
+
+// Bounce debouncer1 = Bounce();
+// Bounce debouncer2 = Bounce();
+
+// void setup() {
+//   Serial.begin(115200);
+
+//   pinMode(BUTTON1, INPUT_PULLUP);
+//   pinMode(BUTTON2, INPUT_PULLUP);
+
+//   debouncer1.attach(BUTTON1);
+//   debouncer1.interval(25); // 25ms 防抖
+//   debouncer2.attach(BUTTON2);
+//   debouncer2.interval(25);
+// }
+
+// void loop() {
+//   debouncer1.update();
+//   debouncer2.update();
+
+//   if (debouncer1.fell()) {  // 按下瞬间
+//     Serial.println("hello Alex");
+//   }
+//   if (debouncer2.fell()) {
+//     Serial.println("hello Michael");
+//   }
+// }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #include <Arduino.h>
-#include <Wire.h>
-#include <Adafruit_GFX.h>
-#include <Adafruit_SSD1306.h>
 
-// ==== OLED (128x64) ====
-#define SCREEN_WIDTH 128
-#define SCREEN_HEIGHT 64
-const uint8_t PIN_SDA = 21, PIN_SCL = 22;   // I2C pins on ESP32
-const uint8_t OLED_ADDR = 0x3C;             // 0x3C or 0x3D
-Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
-
-// ==== Joystick pins ====
-// Left joystick X -> THR; Right joystick Y -> STR
-const uint8_t JOY_LEFT_X  = 36; // THR (ADC1_CH0, input-only)
-const uint8_t JOY_RIGHT_Y = 33; // STR (ADC1_CH5)
-
-// ==== Mapping parameters ====
-static const int DEADZONE = 15;     // deadzone near center
-static const int OUT_MIN  = 1;      // final output range 1..255
-static const int OUT_MAX  = 255;
-static const int OUT_MID  = (OUT_MIN + OUT_MAX) / 2; // 128
-
-// Now both are normal (not inverted)
-bool INVERT_THR = false;  // GPIO36 normal
-bool INVERT_STR = false;  // GPIO33 normal
-
-// Map ADC(0..4095) -> -512..512 -> deadzone -> 1..255
-int mapAxisToParam(uint8_t pin, bool invert) {
-  int raw = analogRead(pin);                 // 0..4095
-  int v   = map(raw, 0, 4095, -512, 512);    // scale to -512..512
-  if (invert) v = -v;                        // invert if needed
-  if (abs(v) < DEADZONE) v = 0;              // apply deadzone
-  int p = map(v, -512, 512, OUT_MIN, OUT_MAX);
-  return constrain(p, OUT_MIN, OUT_MAX);
-}
-
-// Draw a horizontal bar centered at mid (128)
-void drawHBar(int16_t y, int value1to255) {
-  int len = map(value1to255, OUT_MIN, OUT_MAX, -60, 60);
-  int16_t x0 = 4, cx = x0 + 60; // center x
-  display.drawFastHLine(x0, y, 120, SSD1306_WHITE);
-  display.drawFastVLine(cx, y-3, 7, SSD1306_WHITE);
-  if (len > 0)      display.fillRect(cx+1,   y-2,  len,   5, SSD1306_WHITE);
-  else if (len < 0) display.fillRect(cx+len, y-2, -len,   5, SSD1306_WHITE);
-}
+const int BUZZ_PIN = 27;  // 你的蜂鸣器负极接在 GPIO27
 
 void setup() {
-  Serial.begin(115200);
-
-  // I2C + OLED
-  Wire.begin(PIN_SDA, PIN_SCL);
-  if (!display.begin(SSD1306_SWITCHCAPVCC, OLED_ADDR)) {
-    Serial.println("[OLED] Not found. Check wiring/address.");
-  }
-  display.clearDisplay();
-  display.setTextSize(1);
-  display.setTextColor(SSD1306_WHITE);
-  display.setCursor(0,0);
-  display.println("ESP32 Joystick Test (1..255)");
-  display.display();
-
-  // ADC configuration
-  analogReadResolution(12); // 0..4095
-  analogSetPinAttenuation(JOY_LEFT_X,  ADC_11db);
-  analogSetPinAttenuation(JOY_RIGHT_Y, ADC_11db);
+  pinMode(BUZZ_PIN, OUTPUT);
+  digitalWrite(BUZZ_PIN, LOW);  // 上电保持静音
 }
 
 void loop() {
-  // Read mapped values (normal direction)
-  int thr = mapAxisToParam(JOY_LEFT_X,  INVERT_THR);
-  int str = mapAxisToParam(JOY_RIGHT_Y, INVERT_STR);
+  // 响 200ms
+  digitalWrite(BUZZ_PIN, HIGH);
+  delay(200);
 
-  // Serial debug
-  static uint32_t t0 = 0;
-  if (millis() - t0 > 150) {
-    t0 = millis();
-    Serial.printf("THR=%3d  STR=%3d\n", thr, str);
-  }
-
-  // OLED output
-  display.clearDisplay();
-  display.setCursor(0, 0);  display.print("THR: "); display.println(thr);
-  drawHBar(14, thr);
-  display.setCursor(0, 30); display.print("STR: "); display.println(str);
-  drawHBar(44, str);
-  display.setCursor(0, 56); display.print("Range 1-255  Mid=128");
-  display.display();
-
-  delay(30);
+  // 停 800ms
+  digitalWrite(BUZZ_PIN, LOW);
+  delay(800);
 }
+
